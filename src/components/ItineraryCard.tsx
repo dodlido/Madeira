@@ -30,45 +30,37 @@ export default function ItineraryCard() {
 
   async function importMadeira() {
     try {
-      // fetch KML
-      const kmlRes = await fetch('/Madeira.kml')
-      if (!kmlRes.ok) throw new Error('KML not found')
-      const kmlText = await kmlRes.text()
-      const parser = new DOMParser()
-      const xml = parser.parseFromString(kmlText, 'application/xml')
-
-      // map folder -> placemarks
+      // fetch markdown itinerary
+      const mdRes = await fetch('/Madeira.md')
+      if (!mdRes.ok) throw new Error('Madeira.md not found')
+      const md = await mdRes.text()
+      // Parse the .md file into days and stops with notes
+      const days = md.split(/## Day [0-9]+:/).slice(1)
       const newStops: Stop[] = []
-      const folders = Array.from(xml.querySelectorAll('Folder'))
-      for (const folder of folders) {
-        const dayName = folder.querySelector('name')?.textContent?.trim() || 'Day'
-        const placemarks = Array.from(folder.querySelectorAll('Placemark'))
-        for (const pm of placemarks) {
-          const name = pm.querySelector('name')?.textContent?.trim() || 'Untitled'
-          const desc = pm.querySelector('description')?.textContent?.trim() || ''
-          const stop: Stop = { id: String(Date.now()) + Math.random().toString(36).slice(2), date: dayName, location: name, notes: desc }
-          newStops.push(stop)
-        }
-      }
-
-      // fetch markdown for summary/notes
-      try {
-        const mdRes = await fetch('/Madeira.md')
-        if (mdRes.ok) {
-          const md = await mdRes.text()
-          if (newStops.length > 0) {
-            newStops[0].notes = (newStops[0].notes ? newStops[0].notes + '\n\n' : '') + md.split('\n').slice(0,6).join('\n')
+      days.forEach((dayBlock, i) => {
+        const lines = dayBlock.split('\n')
+        const dayTitle = (lines[0] || `Day ${i+1}`).replace(/\*+/g, '').trim()
+        let currentDay = dayTitle
+        let lastStop: Stop | null = null
+        for (let j = 1; j < lines.length; j++) {
+          const line = lines[j]
+          if (/^-[^\S\r\n]/.test(line)) {
+            // Stop: dash at start of line, no leading spaces
+            const stopName = line.replace(/^- /, '').trim()
+            lastStop = { id: String(Date.now()) + Math.random().toString(36).slice(2), date: currentDay, location: stopName, notes: '' }
+            newStops.push(lastStop)
+          } else if (/^\s+- /.test(line) && lastStop) {
+            // Note: line starts with one or more spaces and a dash
+            lastStop.notes = line.replace(/^\s+- /, '').trim()
           }
         }
-      } catch {}
-
+      })
       if (newStops.length === 0) {
-        alert('No placemarks found in KML')
+        alert('No stops found in Madeira.md')
         return
       }
-
       setItems([...items, ...newStops])
-      alert(`Imported ${newStops.length} stops from Madeira`)
+      alert(`Imported ${newStops.length} stops from Madeira.md`)
     } catch (err) {
       console.error(err)
       alert('Import failed: ' + (err as any).message)
@@ -114,10 +106,11 @@ export default function ItineraryCard() {
 
       <div className="mt-3 text-sm space-y-3">
         {Object.keys(grouped).length === 0 && <div className="text-gray-600">No itinerary items.</div>}
-        {Object.entries(grouped).map(([day, stops]) => (
+        {Object.entries(grouped).map(([day, stops], idx) => (
           <div key={day} className="border rounded p-2 bg-gray-50">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-1">
               <div>
+                <div className="text-xs text-violet-500 font-bold uppercase tracking-wide">Day {idx + 1}</div>
                 <div className="font-medium text-violet-700">{day}</div>
                 <div className="text-xs text-teal-600">{stops.length} stops</div>
               </div>
@@ -132,8 +125,9 @@ export default function ItineraryCard() {
                 {stops.map(it => (
                   <li key={it.id} className="p-2 bg-white rounded shadow-sm">
                     <div className="font-medium text-green-700">{it.location}</div>
-                    <div className="text-xs text-gray-500">{it.date}</div>
-                    {it.notes && <div className="text-sm mt-1 text-green-900">{it.notes}</div>}
+                    {it.notes ? (
+                      <div className="text-sm mt-1 text-green-900">{it.notes}</div>
+                    ) : null}
                   </li>
                 ))}
               </ul>
