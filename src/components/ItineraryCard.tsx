@@ -126,9 +126,9 @@ export default function ItineraryCard() {
               <ul className="mt-2 space-y-2">
                 {stops.map(it => (
                   <li key={it.id} className="p-2 bg-white rounded shadow-sm">
-                    <div className="font-medium">{it.location}</div>
+                    <div className="font-medium text-green-700">{it.location}</div>
                     <div className="text-xs text-gray-500">{it.date}</div>
-                    {it.notes && <div className="text-sm mt-1 text-gray-700">{it.notes}</div>}
+                    {it.notes && <div className="text-sm mt-1 text-green-900">{it.notes}</div>}
                   </li>
                 ))}
               </ul>
