@@ -71,7 +71,7 @@ export default function FlightsCard() {
     setLookupLoading(true)
     try {
       const flightIata = `${lookupAirlineCode}${lookupNumber}`
-      const url = `http://api.aviationstack.com/v1/flights?access_key=${apiKey}&flight_iata=${encodeURIComponent(flightIata)}`
+      const url = `https://api.aviationstack.com/v1/flights?access_key=${apiKey}&flight_iata=${encodeURIComponent(flightIata)}`
       const res = await fetch(url)
       const json = await res.json()
 
