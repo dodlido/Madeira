@@ -14,7 +14,9 @@ html, body, #root {
 }
 
 body {
-  background-image: linear-gradient(180deg, rgba(10,10,10,0.15), rgba(2,6,23,0.15)), url('/resources/Madeira.jpg');
+  /* background image provided via CSS variable --madeira-bg (set in main.tsx via Vite import)
+     fallback to no image if the variable is not set */
+  background-image: linear-gradient(180deg, rgba(10,10,10,0.15), rgba(2,6,23,0.15)), var(--madeira-bg, none);
   background-size: cover;
   background-position: center center;
   background-attachment: fixed;
