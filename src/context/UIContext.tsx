@@ -9,7 +9,7 @@ type UIContextType = {
 const UIContext = React.createContext<UIContextType | null>(null)
 
 export function UIProvider({ children }: { children: React.ReactNode }) {
-  const [showAdd, setShowAdd] = useLocalStorage<boolean>('ui-show-add', true)
+  const [showAdd, setShowAdd] = useLocalStorage<boolean>('ui-show-add', false)
   return <UIContext.Provider value={{ showAdd, setShowAdd }}>{children}</UIContext.Provider>
 }
 

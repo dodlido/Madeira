@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Card from './Card'
 import { useUI } from '../context/UIContext'
 import { useLocalStorage } from '../hooks/useLocalStorage'
@@ -7,6 +7,13 @@ type Stop = { id: string; date: string; location: string; notes?: string }
 
 export default function ItineraryCard() {
   const [items, setItems] = useLocalStorage<Stop[]>('itinerary', [])
+    // Auto-import Madeira itinerary on mount if not already imported
+    useEffect(() => {
+      if (!items || items.length === 0) {
+        importMadeira()
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
   const [date, setDate] = useState('')
   const [location, setLocation] = useState('')
   const [notes, setNotes] = useState('')
@@ -81,7 +88,7 @@ export default function ItineraryCard() {
   const [openDays, setOpenDays] = React.useState<Record<string, boolean>>(() => {
     const keys = Object.keys(grouped)
     const m: Record<string, boolean> = {}
-    keys.forEach(k => (m[k] = true))
+    keys.forEach(k => (m[k] = false))
     return m
   })
 

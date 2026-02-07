@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Card from './Card'
 import MapView from './MapView'
 import MapEditor from './MapEditor'
@@ -10,6 +10,12 @@ export default function MapsCard() {
   const [mode, setMode] = useState<'import' | 'create'>('import')
   const [kmlUrl, setKmlUrl] = useState('')
   const [error, setError] = useState<string | null>(null)
+
+  // Auto-load the public KML map on mount
+  useEffect(() => {
+    loadPublicKml()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   type StyleEntry = { icon?: string; color?: string; opacity?: number }
   function kmlColorToCss(kmlColor?: string): { color?: string; opacity?: number } {
