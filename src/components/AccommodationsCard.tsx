@@ -175,13 +175,13 @@ export default function AccommodationsCard() {
     <Card title="Accommodations">
       {showAdd && (
         <form onSubmit={add} className="space-y-2">
-          <input className="w-full border rounded px-2 py-1" placeholder="Name (hotel / apt)" value={name} onChange={e => setName(e.target.value)} />
-          <input className="w-full border rounded px-2 py-1" placeholder="Address" value={address} onChange={e => setAddress(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Name (hotel / apt)" value={name} onChange={e => setName(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Address" value={address} onChange={e => setAddress(e.target.value)} />
           <div className="grid grid-cols-2 gap-2">
-            <input className="border rounded px-2 py-1" type="date" value={checkin} onChange={e => setCheckin(e.target.value)} />
-            <input className="border rounded px-2 py-1" type="date" value={checkout} onChange={e => setCheckout(e.target.value)} />
+            <input className="border rounded px-2 py-1 text-gray-900" type="date" value={checkin} onChange={e => setCheckin(e.target.value)} />
+            <input className="border rounded px-2 py-1 text-gray-900" type="date" value={checkout} onChange={e => setCheckout(e.target.value)} />
           </div>
-          <input className="w-full border rounded px-2 py-1" placeholder="Notes" value={notes} onChange={e => setNotes(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Notes" value={notes} onChange={e => setNotes(e.target.value)} />
           <div className="flex gap-2">
             <button className="bg-indigo-600 text-white px-3 py-1 rounded" type="submit">Add</button>
             <button className="px-3 py-1 rounded border" type="button" onClick={() => setStays([])}>Clear</button>

@@ -96,9 +96,9 @@ export default function ItineraryCard() {
     <Card title="Itinerary">
       {showAdd && (
         <form onSubmit={addItem} className="space-y-2">
-          <input className="w-full border rounded px-2 py-1" type="date" value={date} onChange={e => setDate(e.target.value)} />
-          <input className="w-full border rounded px-2 py-1" placeholder="Location" value={location} onChange={e => setLocation(e.target.value)} />
-          <input className="w-full border rounded px-2 py-1" placeholder="Notes (optional)" value={notes} onChange={e => setNotes(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 text-gray-900" type="date" value={date} onChange={e => setDate(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Location" value={location} onChange={e => setLocation(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Notes (optional)" value={notes} onChange={e => setNotes(e.target.value)} />
           <div className="flex gap-2">
             <button className="bg-indigo-600 text-white px-3 py-1 rounded" type="submit">Add</button>
             <button className="px-3 py-1 rounded border" type="button" onClick={() => setItems([])}>Clear</button>

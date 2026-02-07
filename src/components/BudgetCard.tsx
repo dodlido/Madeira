@@ -72,8 +72,8 @@ export default function BudgetCard() {
     <Card title="Budget">
       {showAdd && (
         <form onSubmit={add} className="space-y-2">
-          <input className="w-full border rounded px-2 py-1 text-teal-900" placeholder="Description" value={desc} onChange={e => setDesc(e.target.value)} />
-          <input className="w-full border rounded px-2 py-1 text-teal-900" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Description" value={desc} onChange={e => setDesc(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
           <div className="flex gap-2">
             <button className="bg-indigo-600 text-white px-3 py-1 rounded" type="submit">Add</button>
             <button className="px-3 py-1 rounded border" type="button" onClick={() => setItems([])}>Clear</button>
@@ -94,8 +94,8 @@ export default function BudgetCard() {
             <li key={it.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between border rounded p-2 bg-gray-50">
               {editingId === it.id ? (
                 <div className="w-full sm:flex-1">
-                  <input ref={editDescRef} className="w-full border rounded px-2 py-1 mb-2 text-teal-900" value={editDesc} onChange={e => setEditDesc(e.target.value)} />
-                  <input className="w-full border rounded px-2 py-1 text-teal-900" value={editAmount} onChange={e => setEditAmount(e.target.value)} />
+                  <input ref={editDescRef} className="w-full border rounded px-2 py-1 mb-2 text-gray-900" value={editDesc} onChange={e => setEditDesc(e.target.value)} />
+                  <input className="w-full border rounded px-2 py-1 text-gray-900" value={editAmount} onChange={e => setEditAmount(e.target.value)} />
                 </div>
               ) : (
                 <div className="w-full sm:flex-1">

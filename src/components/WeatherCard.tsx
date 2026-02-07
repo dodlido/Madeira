@@ -100,7 +100,7 @@ export default function WeatherCard() {
     <Card title="Weather">
       {showAdd && (
         <form onSubmit={add} className="flex gap-2">
-          <input className="flex-1 border rounded px-2 py-1" placeholder="City or location (e.g. Madeira, Portugal)" value={input} onChange={e => setInput(e.target.value)} />
+          <input className="flex-1 border rounded px-2 py-1 text-gray-900" placeholder="City or location (e.g. Madeira, Portugal)" value={input} onChange={e => setInput(e.target.value)} />
           <button className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded" type="submit" disabled={loading}>{loading ? 'Adding...' : 'Add'}</button>
         </form>
       )}

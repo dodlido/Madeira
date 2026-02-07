@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Card from './Card'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { useUI } from '../context/UIContext'
@@ -20,6 +20,15 @@ type Flight = {
 
 export default function FlightsCard() {
   const [flights, setFlights] = useLocalStorage<Flight[]>('flights', [])
+
+  // Debug: Log the first 5 chars of the API key (never log the full key)
+  useEffect(() => {
+    if (import.meta.env.VITE_AVIATIONSTACK_KEY) {
+      console.log('[DEBUG] VITE_AVIATIONSTACK_KEY is set:', import.meta.env.VITE_AVIATIONSTACK_KEY.slice(0, 5) + '...');
+    } else {
+      console.warn('[DEBUG] VITE_AVIATIONSTACK_KEY is NOT set');
+    }
+  }, []);
 
   // Manual entry fields
   const [airline, setAirline] = useState('')
@@ -171,8 +180,8 @@ export default function FlightsCard() {
         {showAdd && (
           <>
             <form onSubmit={lookup} className="flex gap-2 items-center">
-              <input className="w-20 border rounded px-2 py-1" placeholder="IATA" value={lookupAirlineCode} onChange={e => setLookupAirlineCode(e.target.value.toUpperCase())} />
-              <input className="flex-1 border rounded px-2 py-1" placeholder="Flight # (e.g. 123)" value={lookupNumber} onChange={e => setLookupNumber(e.target.value)} />
+              <input className="w-20 border rounded px-2 py-1 text-gray-900" placeholder="IATA" value={lookupAirlineCode} onChange={e => setLookupAirlineCode(e.target.value.toUpperCase())} />
+              <input className="flex-1 border rounded px-2 py-1 text-gray-900" placeholder="Flight # (e.g. 123)" value={lookupNumber} onChange={e => setLookupNumber(e.target.value)} />
               <button className="bg-green-600 text-white px-3 py-1 rounded" type="submit" disabled={lookupLoading}>{lookupLoading ? 'Searching...' : 'Lookup'}</button>
               <button className="px-3 py-1 rounded border" type="button" onClick={refreshAll} disabled={refreshLoading}>{refreshLoading ? 'Refreshing...' : 'Refresh'}</button>
             </form>
@@ -180,15 +189,15 @@ export default function FlightsCard() {
             <div className="text-xs text-gray-500">Tip: use airline IATA code (e.g. TP for TAP Air Portugal).</div>
 
             <form onSubmit={addFlight} className="space-y-2">
-              <input className="w-full border rounded px-2 py-1" placeholder="Airline" value={airline} onChange={e => setAirline(e.target.value)} />
-              <input className="w-full border rounded px-2 py-1" placeholder="Flight #" value={flightNumber} onChange={e => setFlightNumber(e.target.value)} />
+              <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Airline" value={airline} onChange={e => setAirline(e.target.value)} />
+              <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Flight #" value={flightNumber} onChange={e => setFlightNumber(e.target.value)} />
               <div className="grid grid-cols-2 gap-2">
-                <input className="border rounded px-2 py-1" placeholder="From" value={from} onChange={e => setFrom(e.target.value)} />
-                <input className="border rounded px-2 py-1" placeholder="To" value={to} onChange={e => setTo(e.target.value)} />
+                <input className="border rounded px-2 py-1 text-gray-900" placeholder="From" value={from} onChange={e => setFrom(e.target.value)} />
+                <input className="border rounded px-2 py-1 text-gray-900" placeholder="To" value={to} onChange={e => setTo(e.target.value)} />
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <input className="border rounded px-2 py-1" type="datetime-local" value={depart} onChange={e => setDepart(e.target.value)} />
-                <input className="border rounded px-2 py-1" type="datetime-local" value={arrive} onChange={e => setArrive(e.target.value)} />
+                <input className="border rounded px-2 py-1 text-gray-900" type="datetime-local" value={depart} onChange={e => setDepart(e.target.value)} />
+                <input className="border rounded px-2 py-1 text-gray-900" type="datetime-local" value={arrive} onChange={e => setArrive(e.target.value)} />
               </div>
               <div className="flex gap-2">
                 <button className="bg-indigo-600 text-white px-3 py-1 rounded" type="submit">Add</button>

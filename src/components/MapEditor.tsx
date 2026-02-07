@@ -81,7 +81,7 @@ export default function MapEditor() {
         <section className="bg-white p-3 rounded shadow">
           <div className="font-medium mb-2">Layers</div>
           <div className="space-y-2">
-            <input className="w-full border rounded px-2 py-1" placeholder="Layer name" value={layerName} onChange={e => setLayerName(e.target.value)} />
+            <input className="w-full border rounded px-2 py-1 text-gray-900" placeholder="Layer name" value={layerName} onChange={e => setLayerName(e.target.value)} />
             <div className="flex gap-2">
               <input type="color" value={layerColor} onChange={e => setLayerColor(e.target.value)} className="w-12 h-8 p-0" />
               <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={addLayer}>Add layer</button>
@@ -101,15 +101,15 @@ export default function MapEditor() {
 
         <section className="bg-white p-3 rounded shadow">
           <div className="font-medium mb-2">Add marker</div>
-          <input className="w-full border rounded px-2 py-1 mb-2" placeholder="Name" value={markerName} onChange={e => setMarkerName(e.target.value)} />
-          <input className="w-full border rounded px-2 py-1 mb-2" placeholder="Description" value={markerDesc} onChange={e => setMarkerDesc(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 mb-2 text-gray-900" placeholder="Name" value={markerName} onChange={e => setMarkerName(e.target.value)} />
+          <input className="w-full border rounded px-2 py-1 mb-2 text-gray-900" placeholder="Description" value={markerDesc} onChange={e => setMarkerDesc(e.target.value)} />
           <select className="w-full border rounded px-2 py-1 mb-2" value={selectedLayer} onChange={e => setSelectedLayer(e.target.value)}>
             <option value={''}>-- Select layer --</option>
             {data.layers.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
           </select>
           <div className="grid grid-cols-2 gap-2 mb-2">
-            <input className="border rounded px-2 py-1" placeholder="Latitude" value={lat} onChange={e => setLat(e.target.value)} />
-            <input className="border rounded px-2 py-1" placeholder="Longitude" value={lng} onChange={e => setLng(e.target.value)} />
+            <input className="border rounded px-2 py-1 text-gray-900" placeholder="Latitude" value={lat} onChange={e => setLat(e.target.value)} />
+            <input className="border rounded px-2 py-1 text-gray-900" placeholder="Longitude" value={lng} onChange={e => setLng(e.target.value)} />
           </div>
           <div className="flex gap-2">
             <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={addMarker}>Add</button>

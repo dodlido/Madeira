@@ -316,7 +316,7 @@ export default function MapsCard() {
           <>
             {showAdd && (
               <form onSubmit={handleFetch} className="flex gap-2">
-                <input value={kmlUrl} onChange={e => setKmlUrl(e.target.value)} placeholder="Google My Maps URL or map id" className="flex-1 border rounded px-2 py-1" />
+                <input value={kmlUrl} onChange={e => setKmlUrl(e.target.value)} placeholder="Google My Maps URL or map id" className="flex-1 border rounded px-2 py-1 text-gray-900" />
                 <button className="bg-indigo-600 text-white px-3 py-1 rounded" type="submit">Import</button>
               </form>
             )}
@@ -332,7 +332,7 @@ export default function MapsCard() {
 
             {showAdd && (
               <form onSubmit={handlePasteKml} className="space-y-2">
-                <textarea name="kml" className="w-full border rounded px-2 py-1" rows={4} placeholder="Or paste KML content here"></textarea>
+                <textarea name="kml" className="w-full border rounded px-2 py-1 text-gray-900" rows={4} placeholder="Or paste KML content here"></textarea>
                 <div className="flex gap-2">
                   <button className="bg-green-600 text-white px-3 py-1 rounded" type="submit">Parse pasted KML</button>
                 </div>
