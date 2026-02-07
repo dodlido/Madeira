@@ -223,12 +223,85 @@ export default function MapsCard() {
 
   const { showAdd } = useUI()
 
+  // Loads the public KML file from /Madeira.kml
+  async function loadPublicKml() {
+    setError(null)
+    try {
+      const res = await fetch('/Madeira.kml')
+      if (!res.ok) throw new Error('Failed to fetch Madeira.kml')
+      const text = await res.text()
+      const parser = new DOMParser()
+      const xml = parser.parseFromString(text, 'application/xml')
+      // extract styles and folder mappings
+      const styles: Record<string, StyleEntry> = {}
+      Array.from(xml.querySelectorAll('Style')).forEach(s => {
+        const id = s.getAttribute('id')
+        if (!id) return
+        const entry: StyleEntry = {}
+        const href = s.querySelector('Icon > href')?.textContent
+        if (href) entry.icon = href
+        const iconStyleColor = s.querySelector('IconStyle > color')?.textContent || s.querySelector('IconStyle > Icon > href')?.textContent
+        const polyColor = s.querySelector('PolyStyle > color')?.textContent
+        const lineColor = s.querySelector('LineStyle > color')?.textContent
+        const labelColor = s.querySelector('LabelStyle > color')?.textContent
+        const c = iconStyleColor || polyColor || lineColor || labelColor
+        const css = kmlColorToCss(c)
+        if (css.color) entry.color = css.color
+        if (css.opacity !== undefined) entry.opacity = css.opacity
+        styles[id] = entry
+      })
+      Array.from(xml.querySelectorAll('StyleMap')).forEach(sm => {
+        const id = sm.getAttribute('id')
+        if (!id) return
+        const pair = sm.querySelector('Pair > styleUrl')?.textContent
+        if (!pair) return
+        const ref = pair.replace('#', '')
+        if (styles[ref]) styles[id] = styles[ref]
+      })
+      const placemarkToFolder: Record<string, string> = {}
+      Array.from(xml.querySelectorAll('Folder')).forEach(folder => {
+        const folderName = folder.querySelector('name')?.textContent || ''
+        Array.from(folder.querySelectorAll('Placemark')).forEach(pm => {
+          const nm = pm.querySelector('name')?.textContent
+          if (nm) placemarkToFolder[nm] = folderName
+        })
+      })
+      const mod = await import('togeojson')
+      const gj = (mod as any).kml(xml)
+      console.log('Loaded KML:', gj)
+      if (!gj || !gj.features || gj.features.length === 0) {
+        setError('No features found in KML. Check the file or try re-exporting.')
+        setGeojson(null)
+        return
+      }
+      gj.features.forEach((f: any) => {
+        try {
+          const name = f.properties && f.properties.name
+          const styleUrl = f.properties && f.properties.styleUrl
+          if (styleUrl) {
+            const sid = String(styleUrl).replace('#', '')
+            const s = styles[sid]
+            if (s) {
+              if (s.icon) f.properties._icon = s.icon
+              if (s.color) f.properties._color = s.color
+              if (s.opacity !== undefined) f.properties._opacity = s.opacity
+            }
+          }
+          if (name && placemarkToFolder[name]) f.properties._layer = placemarkToFolder[name]
+        } catch {}
+      })
+      setGeojson(gj)
+    } catch (err: any) {
+      setError('Unable to load public KML: ' + (err.message || err))
+    }
+  }
+
   return (
     <Card title="Maps">
       <div className="space-y-2">
         {showAdd && (
           <div className="flex gap-2">
-            <button className={`px-3 py-1 rounded ${mode==='create'?'bg-indigo-600 text-white':'border'}`} onClick={() => setMode('create')}>Create map</button>
+            <button className={`px-3 py-1 rounded border bg-indigo-700 text-white`} onClick={loadPublicKml}>Load Map</button>
             <button className={`px-3 py-1 rounded ${mode==='import'?'bg-indigo-600 text-white':'border'}`} onClick={() => setMode('import')}>Import KML</button>
           </div>
         )}
@@ -312,4 +385,78 @@ export default function MapsCard() {
     </Card>
   )
 }
+
+// ...existing code...
+  // Loads the public KML file from /Madeira.kml
+  async function loadPublicKml() {
+    setError(null)
+    try {
+      const res = await fetch('/Madeira.kml')
+      if (!res.ok) throw new Error('Failed to fetch Madeira.kml')
+      const text = await res.text()
+      const parser = new DOMParser()
+      const xml = parser.parseFromString(text, 'application/xml')
+      // extract styles and folder mappings
+      const styles: Record<string, StyleEntry> = {}
+      Array.from(xml.querySelectorAll('Style')).forEach(s => {
+        const id = s.getAttribute('id')
+        if (!id) return
+        const entry: StyleEntry = {}
+        const href = s.querySelector('Icon > href')?.textContent
+        if (href) entry.icon = href
+        const iconStyleColor = s.querySelector('IconStyle > color')?.textContent || s.querySelector('IconStyle > Icon > href')?.textContent
+        const polyColor = s.querySelector('PolyStyle > color')?.textContent
+        const lineColor = s.querySelector('LineStyle > color')?.textContent
+        const labelColor = s.querySelector('LabelStyle > color')?.textContent
+        const c = iconStyleColor || polyColor || lineColor || labelColor
+        const css = kmlColorToCss(c)
+        if (css.color) entry.color = css.color
+        if (css.opacity !== undefined) entry.opacity = css.opacity
+        styles[id] = entry
+      })
+      Array.from(xml.querySelectorAll('StyleMap')).forEach(sm => {
+        const id = sm.getAttribute('id')
+        if (!id) return
+        const pair = sm.querySelector('Pair > styleUrl')?.textContent
+        if (!pair) return
+        const ref = pair.replace('#', '')
+        if (styles[ref]) styles[id] = styles[ref]
+      })
+      const placemarkToFolder: Record<string, string> = {}
+      Array.from(xml.querySelectorAll('Folder')).forEach(folder => {
+        const folderName = folder.querySelector('name')?.textContent || ''
+        Array.from(folder.querySelectorAll('Placemark')).forEach(pm => {
+          const nm = pm.querySelector('name')?.textContent
+          if (nm) placemarkToFolder[nm] = folderName
+        })
+      })
+      const mod = await import('togeojson')
+      const gj = (mod as any).kml(xml)
+      console.log('Loaded KML:', gj)
+      if (!gj || !gj.features || gj.features.length === 0) {
+        setError('No features found in KML. Check the file or try re-exporting.')
+        setGeojson(null)
+        return
+      }
+      gj.features.forEach((f: any) => {
+        try {
+          const name = f.properties && f.properties.name
+          const styleUrl = f.properties && f.properties.styleUrl
+          if (styleUrl) {
+            const sid = String(styleUrl).replace('#', '')
+            const s = styles[sid]
+            if (s) {
+              if (s.icon) f.properties._icon = s.icon
+              if (s.color) f.properties._color = s.color
+              if (s.opacity !== undefined) f.properties._opacity = s.opacity
+            }
+          }
+          if (name && placemarkToFolder[name]) f.properties._layer = placemarkToFolder[name]
+        } catch {}
+      })
+      setGeojson(gj)
+    } catch (err: any) {
+      setError('Unable to load public KML: ' + (err.message || err))
+    }
+  }
 
