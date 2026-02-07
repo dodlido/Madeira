@@ -7,13 +7,7 @@ type Stop = { id: string; date: string; location: string; notes?: string }
 
 const ItineraryCard = React.forwardRef(function ItineraryCard(props, ref) {
   const [items, setItems] = useLocalStorage<Stop[]>('itinerary', [])
-    // Auto-import Madeira itinerary on mount if not already imported
-    useEffect(() => {
-      if (!items || items.length === 0) {
-        importPresetItinerary('/madeira/Madeira.md')
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    // No auto-import of Madeira itinerary on mount
   const [date, setDate] = useState('')
   const [location, setLocation] = useState('')
   const [notes, setNotes] = useState('')

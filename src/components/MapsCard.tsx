@@ -23,11 +23,7 @@ const MapsCard = React.forwardRef(function MapsCard(props, ref) {
     // Add more preset KML files here as needed
   ]
 
-  // Auto-load the public KML map on mount
-  useEffect(() => {
-    loadPublicKml()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // No auto-load of public KML map on mount
 
   type StyleEntry = { icon?: string; color?: string; opacity?: number }
   function kmlColorToCss(kmlColor?: string): { color?: string; opacity?: number } {
