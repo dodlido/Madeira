@@ -9,9 +9,30 @@ import { useUI } from './context/UIContext'
 
 
 export default function App() {
+  // Refs to trigger preset actions in cards
+  const itineraryRef = React.useRef<{ loadMadeira?: () => void }>(null)
+  const mapsRef = React.useRef<{ loadMadeira?: () => void }>(null)
+  const weatherRef = React.useRef<{ loadMadeira?: () => void }>(null)
+  const flightsRef = React.useRef<{ loadMadeira?: () => void }>(null)
   const { showAdd, setShowAdd } = useUI()
   const [headline, setHeadline] = React.useState('Madeira Trip')
   const [subheadline, setSubheadline] = React.useState('Lior and Etay Present')
+
+  async function handleMadeiraPreset() {
+    itineraryRef.current?.loadMadeira?.()
+    mapsRef.current?.loadMadeira?.()
+    weatherRef.current?.loadMadeira?.()
+    flightsRef.current?.loadMadeira?.()
+    // Load headlines from preset
+    try {
+      const res = await fetch('/madeira/headlines.json')
+      if (res.ok) {
+        const data = await res.json()
+        if (data.headline) setHeadline(data.headline)
+        if (data.subheadline) setSubheadline(data.subheadline)
+      }
+    } catch {}
+  }
 
   return (
     <div className="min-h-screen p-6">
@@ -43,6 +64,15 @@ export default function App() {
             )}
           </div>
           <div className="flex items-center gap-3">
+            <button
+              className="px-2 py-1 rounded bg-amber-400 text-xs font-semibold text-slate-900 shadow hover:bg-amber-300 border border-amber-300"
+              style={{ fontSize: '0.85rem' }}
+              onClick={handleMadeiraPreset}
+              type="button"
+              title="Load Madeira preset itinerary, map, weather, and flights"
+            >
+              Madeira preset
+            </button>
             <label className="flex items-center gap-2 text-sm text-white">
               <input type="checkbox" checked={showAdd} onChange={e => setShowAdd(e.target.checked)} />
               Show add controls
@@ -51,11 +81,11 @@ export default function App() {
         </header>
 
         <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <ItineraryCard />
-          <MapsCard />
+          <ItineraryCard ref={itineraryRef} />
+          <MapsCard ref={mapsRef} />
           <AccommodationsCard />
-          <FlightsCard />
-          <WeatherCard />
+          <FlightsCard ref={flightsRef} />
+          <WeatherCard ref={weatherRef} />
           <BudgetCard />
         </main>
       </div>

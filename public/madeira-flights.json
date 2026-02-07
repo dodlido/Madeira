@@ -1,0 +1,4 @@
+[
+  {"airline": "TP", "flightNumber": "1692", "from": "LIS", "to": "FNC", "depart": "2026-02-10T09:00", "arrive": "2026-02-10T11:00"},
+  {"airline": "TP", "flightNumber": "1693", "from": "FNC", "to": "LIS", "depart": "2026-02-17T12:00", "arrive": "2026-02-17T14:00"}
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "from": "TLV",
+    "to": "PRG",
+    "date": "2026-03-27",
+    "airline": "Smartwings",
+    "flight": "QS1287",
+    "depart": "2026-03-27T06:30:00+02:00",
+    "arrive": "2026-03-27T10:30:00+02:00"
+  },
+  {
+    "from": "PRG",
+    "to": "FNC",
+    "date": "2026-03-27",
+    "airline": "Smartwings",
+    "flight": "QS1170",
+    "depart": "2026-03-27T14:15:00+02:00",
+    "arrive": "2026-03-27T18:50:00+02:00"
+  },
+  {
+    "from": "FNC",
+    "to": "PRG",
+    "date": "2026-04-04",
+    "airline": "Smartwings",
+    "flight": "QS1171",
+    "depart": "2026-04-04T18:30:00+02:00",
+    "arrive": "2026-04-04T21:23:00+02:00"
+  },
+  {
+    "from": "PRG",
+    "to": "TLV",
+    "date": "2026-04-05",
+    "airline": "Smartwings",
+    "flight": "QS1286",
+    "depart": "2026-04-05T00:30:00+02:00",
+    "arrive": "2026-04-06T04:30:00+02:00"
+  }
+]

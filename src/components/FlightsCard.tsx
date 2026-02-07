@@ -18,7 +18,24 @@ type Flight = {
 
   
 
-export default function FlightsCard() {
+const FlightsCard = React.forwardRef(function FlightsCard(props, ref) {
+    // Expose loadMadeira for preset button
+    React.useImperativeHandle(ref, () => ({
+      loadMadeira: async () => {
+        // Load flights from public/madeira/madeira-flights.json
+        try {
+          const resp = await fetch('/madeira/madeira-flights.json')
+          if (!resp.ok) throw new Error('Failed to fetch madeira/madeira-flights.json')
+          const data = await resp.json()
+          setFlights(data)
+          setShowImportSuccess(true)
+          setTimeout(() => setShowImportSuccess(false), 2000)
+        } catch (e) {
+          setShowImportError(true)
+          setTimeout(() => setShowImportError(false), 2000)
+        }
+      }
+    }))
   const [flights, setFlights] = useLocalStorage<Flight[]>('flights', [])
 
   // Debug: Log the first 5 chars of the API key (never log the full key)
@@ -222,7 +239,8 @@ export default function FlightsCard() {
       </ul>
     </Card>
   )
-}
+})
+export default FlightsCard
 
 function formatFlightDate(value?: string, targetTZ?: string) {
   if (!value) return '—'

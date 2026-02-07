@@ -5,11 +5,23 @@ import MapEditor from './MapEditor'
 import { useLocalStorage } from '../hooks/useLocalStorage'
 import { useUI } from '../context/UIContext'
 
-export default function MapsCard() {
+const MapsCard = React.forwardRef(function MapsCard(props, ref) {
+    // Expose loadMadeira for preset button
+    React.useImperativeHandle(ref, () => ({
+      loadMadeira: async () => {
+        await loadPublicKml()
+      }
+    }))
   const [geojson, setGeojson] = useLocalStorage<any | null>('map-geojson', null)
   const [mode, setMode] = useState<'import' | 'create'>('import')
   const [kmlUrl, setKmlUrl] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [showPresetMenu, setShowPresetMenu] = useState(false)
+  // Hardcoded for now; in future, could fetch dynamically
+  const presetFiles = [
+    '/madeira/Madeira.kml'
+    // Add more preset KML files here as needed
+  ]
 
   // Auto-load the public KML map on mount
   useEffect(() => {
@@ -229,12 +241,12 @@ export default function MapsCard() {
 
   const { showAdd } = useUI()
 
-  // Loads the public KML file from /Madeira.kml
+  // Loads the public KML file from /madeira/Madeira.kml
   async function loadPublicKml() {
     setError(null)
     try {
-      const res = await fetch('/Madeira.kml')
-      if (!res.ok) throw new Error('Failed to fetch Madeira.kml')
+      const res = await fetch('/madeira/Madeira.kml')
+      if (!res.ok) throw new Error('Failed to fetch madeira/Madeira.kml')
       const text = await res.text()
       const parser = new DOMParser()
       const xml = parser.parseFromString(text, 'application/xml')
@@ -302,12 +314,92 @@ export default function MapsCard() {
     }
   }
 
+
+
+  async function loadPresetKml(kmlPath: string) {
+    setError(null)
+    try {
+      const res = await fetch(kmlPath)
+      if (!res.ok) throw new Error('Failed to fetch ' + kmlPath)
+      const text = await res.text()
+      const parser = new DOMParser()
+      const xml = parser.parseFromString(text, 'application/xml')
+      // extract styles and folder mappings (same as loadPublicKml)
+      const styles: Record<string, StyleEntry> = {}
+      Array.from(xml.querySelectorAll('Style')).forEach(s => {
+        const id = s.getAttribute('id')
+        if (!id) return
+        const entry: StyleEntry = {}
+        const href = s.querySelector('Icon > href')?.textContent
+        if (href) entry.icon = href
+        const iconStyleColor = s.querySelector('IconStyle > color')?.textContent || s.querySelector('IconStyle > Icon > href')?.textContent
+        const polyColor = s.querySelector('PolyStyle > color')?.textContent
+        const lineColor = s.querySelector('LineStyle > color')?.textContent
+        const labelColor = s.querySelector('LabelStyle > color')?.textContent
+        const c = iconStyleColor || polyColor || lineColor || labelColor
+        const css = kmlColorToCss(c)
+        if (css.color) entry.color = css.color
+        if (css.opacity !== undefined) entry.opacity = css.opacity
+        styles[id] = entry
+      })
+      Array.from(xml.querySelectorAll('StyleMap')).forEach(sm => {
+        const id = sm.getAttribute('id')
+        if (!id) return
+        const pair = sm.querySelector('Pair > styleUrl')?.textContent
+        if (!pair) return
+        const ref = pair.replace('#', '')
+        if (styles[ref]) styles[id] = styles[ref]
+      })
+      const placemarkToFolder: Record<string, string> = {}
+      Array.from(xml.querySelectorAll('Folder')).forEach(folder => {
+        const folderName = folder.querySelector('name')?.textContent || ''
+        Array.from(folder.querySelectorAll('Placemark')).forEach(pm => {
+          const nm = pm.querySelector('name')?.textContent
+          if (nm) placemarkToFolder[nm] = folderName
+        })
+      })
+      const mod = await import('togeojson')
+      const gj = (mod as any).kml(xml)
+      if (!gj || !gj.features || gj.features.length === 0) {
+        setError('No features found in KML. Check the file or try re-exporting.')
+        setGeojson(null)
+        return
+      }
+      gj.features.forEach((f: any) => {
+        try {
+          const name = f.properties && f.properties.name
+          const styleUrl = f.properties && f.properties.styleUrl
+          if (styleUrl) {
+            const sid = String(styleUrl).replace('#', '')
+            const s = styles[sid]
+            if (s) {
+              if (s.icon) f.properties._icon = s.icon
+              if (s.color) f.properties._color = s.color
+              if (s.opacity !== undefined) f.properties._opacity = s.opacity
+            }
+          }
+          if (name && placemarkToFolder[name]) f.properties._layer = placemarkToFolder[name]
+        } catch {}
+      })
+      setGeojson(gj)
+    } catch (err: any) {
+      setError('Unable to load preset KML: ' + (err.message || err))
+    }
+  }
+
   return (
     <Card title="Maps">
       <div className="space-y-2">
         {showAdd && (
-          <div className="flex gap-2">
-            <button className={`px-3 py-1 rounded border bg-indigo-700 text-white`} onClick={loadPublicKml}>Load Map</button>
+          <div className="flex gap-2 relative">
+            <button className={`px-3 py-1 rounded border`} type="button" onClick={() => setShowPresetMenu(v => !v)}>Map Presets</button>
+            {showPresetMenu && (
+              <div className="absolute z-10 bg-white border rounded shadow p-2 mt-1">
+                {presetFiles.map(f => (
+                  <button key={f} className="block w-full text-left px-2 py-1 text-gray-900 hover:bg-indigo-100" type="button" onClick={() => { setGeojson(null); loadPresetKml(f); setShowPresetMenu(false); }}>{f.replace('/madeira/', '').replace('.kml', '')}</button>
+                ))}
+              </div>
+            )}
             <button className={`px-3 py-1 rounded ${mode==='import'?'bg-indigo-600 text-white':'border'}`} onClick={() => setMode('import')}>Import KML</button>
           </div>
         )}
@@ -390,7 +482,8 @@ export default function MapsCard() {
       </div>
     </Card>
   )
-}
+})
+export default MapsCard
 
 // ...existing code...
   // Loads the public KML file from /Madeira.kml

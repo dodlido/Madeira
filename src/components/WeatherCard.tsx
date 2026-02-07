@@ -31,7 +31,43 @@ type LocationWeather = {
   error?: string
 }
 
-export default function WeatherCard() {
+const WeatherCard = React.forwardRef(function WeatherCard(props, ref) {
+    // Expose loadMadeira for preset button
+    React.useImperativeHandle(ref, () => ({
+      loadMadeira: async () => {
+        if (!locations.some(l => l.name.toLowerCase().includes('madeira'))) {
+          // If add controls are visible, use the form logic
+          if (showAdd) {
+            setInput('Madeira, Portugal')
+            setTimeout(() => {
+              const form = document.querySelector('form[data-weather-form]') as HTMLFormElement | null
+              if (form) {
+                form.requestSubmit()
+              }
+            }, 50)
+          } else {
+            // If add controls are hidden, add directly
+            try {
+              const gRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=Madeira,%20Portugal&count=1`)
+              const gJson = await gRes.json()
+              if (!gJson || !gJson.results || gJson.results.length === 0) return
+              const r = gJson.results[0]
+              const lat = r.latitude
+              const lon = r.longitude
+              const fRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`)
+              const fJson = await fRes.json()
+              const daily = fJson && fJson.daily ? {
+                time: fJson.daily.time || [],
+                temperature_2m_max: fJson.daily.temperature_2m_max || [],
+                temperature_2m_min: fJson.daily.temperature_2m_min || [],
+                weathercode: fJson.daily.weathercode || [],
+              } : undefined
+              setLocations([...locations, { id: String(Date.now()), name: r.name + (r.country ? `, ${r.country}` : ''), lat, lon, daily }])
+            } catch {}
+          }
+        }
+      }
+    }))
   const [locations, setLocations] = useLocalStorage<LocationWeather[]>('weather-places', [])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -99,7 +135,7 @@ export default function WeatherCard() {
   return (
     <Card title="Weather">
       {showAdd && (
-        <form onSubmit={add} className="flex gap-2">
+        <form onSubmit={add} className="flex gap-2" data-weather-form>
           <input className="flex-1 border rounded px-2 py-1 text-gray-900" placeholder="City or location (e.g. Madeira, Portugal)" value={input} onChange={e => setInput(e.target.value)} />
           <button className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded" type="submit" disabled={loading}>{loading ? 'Adding...' : 'Add'}</button>
         </form>
@@ -147,4 +183,5 @@ export default function WeatherCard() {
       </ul>
     </Card>
   )
-}
+})
+export default WeatherCard

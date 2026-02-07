@@ -5,12 +5,12 @@ import { useLocalStorage } from '../hooks/useLocalStorage'
 
 type Stop = { id: string; date: string; location: string; notes?: string }
 
-export default function ItineraryCard() {
+const ItineraryCard = React.forwardRef(function ItineraryCard(props, ref) {
   const [items, setItems] = useLocalStorage<Stop[]>('itinerary', [])
     // Auto-import Madeira itinerary on mount if not already imported
     useEffect(() => {
       if (!items || items.length === 0) {
-        importMadeira()
+        importPresetItinerary('/madeira/Madeira.md')
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -28,13 +28,11 @@ export default function ItineraryCard() {
     setNotes('')
   }
 
-  async function importMadeira() {
+  async function importPresetItinerary(mdPath: string) {
     try {
-      // fetch markdown itinerary
-      const mdRes = await fetch('/Madeira.md')
-      if (!mdRes.ok) throw new Error('Madeira.md not found')
+      const mdRes = await fetch(mdPath)
+      if (!mdRes.ok) throw new Error(mdPath + ' not found')
       const md = await mdRes.text()
-      // Parse the .md file into days and stops with notes
       const days = md.split(/## Day [0-9]+:/).slice(1)
       const newStops: Stop[] = []
       days.forEach((dayBlock, i) => {
@@ -45,27 +43,40 @@ export default function ItineraryCard() {
         for (let j = 1; j < lines.length; j++) {
           const line = lines[j]
           if (/^-[^\S\r\n]/.test(line)) {
-            // Stop: dash at start of line, no leading spaces
             const stopName = line.replace(/^- /, '').trim()
             lastStop = { id: String(Date.now()) + Math.random().toString(36).slice(2), date: currentDay, location: stopName, notes: '' }
             newStops.push(lastStop)
           } else if (/^\s+- /.test(line) && lastStop) {
-            // Note: line starts with one or more spaces and a dash
             lastStop.notes = line.replace(/^\s+- /, '').trim()
           }
         }
       })
       if (newStops.length === 0) {
-        alert('No stops found in Madeira.md')
+        // No stops found, do nothing
         return
       }
       setItems([...items, ...newStops])
-      alert(`Imported ${newStops.length} stops from Madeira.md`)
     } catch (err) {
       console.error(err)
-      alert('Import failed: ' + (err as any).message)
+      // Optionally handle import failure silently
     }
   }
+
+  // List all .md files in public/madeira/ for presets
+  const [presetFiles, setPresetFiles] = React.useState<string[]>([])
+  const [showPresetMenu, setShowPresetMenu] = React.useState(false)
+  React.useEffect(() => {
+    // Hardcoded for now, could be fetched from an API or manifest
+    setPresetFiles(['/madeira/Madeira.md'])
+  }, [])
+
+  // Expose loadMadeira for preset button
+  React.useImperativeHandle(ref, () => ({
+    loadMadeira: async () => {
+      setItems([])
+      setTimeout(() => importPresetItinerary('/madeira/Madeira.md'), 0)
+    }
+  }))
 
   const { showAdd } = useUI()
 
@@ -94,7 +105,14 @@ export default function ItineraryCard() {
           <div className="flex gap-2">
             <button className="bg-indigo-600 text-white px-3 py-1 rounded" type="submit">Add</button>
             <button className="px-3 py-1 rounded border" type="button" onClick={() => setItems([])}>Clear</button>
-            <button className="px-3 py-1 rounded border" type="button" onClick={importMadeira}>Import Madeira</button>
+            <button className="px-3 py-1 rounded border" type="button" onClick={() => setShowPresetMenu(v => !v)}>Preset Itinerary</button>
+            {showPresetMenu && (
+              <div className="absolute z-10 bg-white border rounded shadow p-2 mt-1">
+                {presetFiles.map(f => (
+                  <button key={f} className="block w-full text-left px-2 py-1 hover:bg-indigo-100" type="button" onClick={() => { setItems([]); importPresetItinerary(f); setShowPresetMenu(false); }}>{f.replace('/madeira/', '').replace('.md', '')}</button>
+                ))}
+              </div>
+            )}
           </div>
         </form>
       )}
@@ -137,4 +155,5 @@ export default function ItineraryCard() {
       </div>
     </Card>
   )
-}
+})
+export default ItineraryCard
