@@ -2,8 +2,6 @@ import React, { useState } from 'react'
 import Card from './Card'
 import { useUI } from '../context/UIContext'
 import { useLocalStorage } from '../hooks/useLocalStorage'
-import kmlUrl from '../../resources/Madeira.kml?url'
-import mdUrl from '../../resources/Madeira.md?url'
 
 type Stop = { id: string; date: string; location: string; notes?: string }
 
@@ -26,7 +24,7 @@ export default function ItineraryCard() {
   async function importMadeira() {
     try {
       // fetch KML
-      const kmlRes = await fetch(kmlUrl)
+      const kmlRes = await fetch('/Madeira.kml')
       if (!kmlRes.ok) throw new Error('KML not found')
       const kmlText = await kmlRes.text()
       const parser = new DOMParser()
@@ -48,7 +46,7 @@ export default function ItineraryCard() {
 
       // fetch markdown for summary/notes
       try {
-        const mdRes = await fetch(mdUrl)
+        const mdRes = await fetch('/Madeira.md')
         if (mdRes.ok) {
           const md = await mdRes.text()
           if (newStops.length > 0) {

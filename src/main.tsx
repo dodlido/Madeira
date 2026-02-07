@@ -4,12 +4,11 @@ import 'leaflet/dist/leaflet.css'
 import App from './App'
 import './index.css'
 import { UIProvider } from './context/UIContext'
-import madeiraUrl from '../resources/Madeira.jpg?url'
 
 // expose the background image URL as a CSS variable so index.css can use it
 if (typeof document !== 'undefined') {
   try {
-    document.documentElement.style.setProperty('--madeira-bg', `url(${madeiraUrl})`)
+    document.documentElement.style.setProperty('--madeira-bg', `url(/Madeira.jpg)`)
   } catch (e) {
     // ignore in non-DOM environments
   }
